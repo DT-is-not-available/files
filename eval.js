@@ -11,7 +11,7 @@ class JavascriptEval {
 				{
 					opcode: 'eval',
 					blockType: Scratch.BlockType.REPORTER,
-					text: 'eval',
+					text: 'eval [code]',
 					arguments: {
 						code: {
 							type: Scratch.ArgumentType.STRING,
@@ -20,9 +20,9 @@ class JavascriptEval {
 					}
 				},
 				{
-					opcode: 'eval',
+					opcode: 'eval2',
 					blockType: Scratch.BlockType.COMMAND,
-					text: 'eval',
+					text: 'eval [code]',
 					arguments: {
 						code: {
 							type: Scratch.ArgumentType.STRING,
@@ -31,9 +31,9 @@ class JavascriptEval {
 					}
 				},
 				{
-					opcode: 'eval',
+					opcode: 'eval3',
 					blockType: Scratch.BlockType.BOOLEAN,
-					text: 'eval',
+					text: 'eval [code]',
 					arguments: {
 						code: {
 							type: Scratch.ArgumentType.STRING,
@@ -46,6 +46,12 @@ class JavascriptEval {
 	}
 
 	eval(ARGS) {
+		return eval(ARGS.code);
+	}
+	eval2(ARGS) {
+		return eval(ARGS.code);
+	}
+	eval3(ARGS) {
 		return eval(ARGS.code);
 	}
 }
