@@ -7,6 +7,7 @@ http://localhost:8000/canvas.js
 	var images = []
 	document.querySelector("#htmlcanvas")?.remove()
 	var stageCanvas = document.querySelector("canvas")
+
 	function prepCanvas() {
 		var stageCanvas = document.querySelector("canvas")
 		var canvas = stageCanvas.parentElement.appendChild(document.createElement("canvas"))
@@ -81,8 +82,8 @@ http://localhost:8000/canvas.js
 
 		name: 'Canvas',
 
-		color1: "#ff4da7",
-		color2: "#b93778",
+		color1: "#9966ff",
+		color2: "#6d4ab4",
 
 		menus: {},
 
@@ -151,7 +152,8 @@ http://localhost:8000/canvas.js
 				arguments: {
 					sprite: {
 						type: Scratch.ArgumentType.STRING,
-						defaultValue: "Sprite 1"
+						defaultValue: "Sprite1",
+						menu: "sprites"
 					},
 					x: {
 						type: Scratch.ArgumentType.NUMBER,
@@ -163,7 +165,18 @@ http://localhost:8000/canvas.js
 					},
 				}
 			},
-		]
+		],
+		menus: {
+			sprites: 'getSprites'
+		}
+	}
+
+	HTMLCanvas.prototype.getSprites = function(){
+		let sprites = []
+		Scratch.vm.runtime.targets.forEach(e=>{
+			if (e.isOriginal && !e.isStage) sprites.push(e.sprite.name)
+		})
+		return sprites
 	}
 
 	function newSetter(prop, label, type, menu) {

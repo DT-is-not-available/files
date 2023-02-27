@@ -27,6 +27,16 @@
 
 				blocks: [
 					{
+						opcode: 'when',
+						blockType: Scratch.BlockType.HAT,
+						text: 'when [cond]',
+						arguments: {
+							cond: {
+								type: Scratch.ArgumentType.BOOLEAN
+							}
+						}
+					},
+					{
 						opcode: 'eval',
 						blockType: Scratch.BlockType.REPORTER,
 						text: 'eval [code] reporter',
@@ -135,6 +145,9 @@
 			};
 		}
 
+		when(ARGS) {
+			return ARGS.cond
+		}
 		stashLine(ARGS) {
 			jsToRun += ARGS.code+"\n"
 		}
@@ -167,7 +180,7 @@
 				"\x00Scratch Sprite\x00": util.target,
 				"\x00Scratch Sprite\x01": Scratch.vm.runtime.targets[Scratch.vm.runtime.targets.length-1]
 			}[ARGS.val] || ARGS.val
-			for (let i = 0; i < path.length-1; i++) {
+			while (path.length > 1) {
 				v = v?.[path.shift()]
 			}
 			v[path[0]] = value
@@ -176,8 +189,8 @@
 		getVar(ARGS) {
 			let v = variables
 			let path = ARGS.varname.split(".")
-			for (let i = 0; i < path.length; i++) {
-				v = v?.[path[i]]
+			while (path.length > 0) {
+				v = v?.[path.shift()]
 			}
 			return getReturnable(v)
 		}

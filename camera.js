@@ -1,223 +1,222 @@
 (function(Scratch) {
-	// document.querySelector("canvas").parentElement
-	'use strict'
+  // document.querySelector('canvas').parentElement
+  'use strict';
 
-	var camera = {}
+  const vm = Scratch.vm;
 
-	camera.X ??= 0
-	camera.Y ??= 0
-	camera.Zoom ??= 100
-	camera.Background ??= "#ffffff"
+  let cameraX = 0;
+  let cameraY = 0;
+  let cameraZoom = 100;
+  let cameraBG = '#ffffff';
 
-	Scratch.vm.runtime.runtimeOptions.fencing = false
-	Scratch.vm.renderer.offscreenTouching = true
+  vm.runtime.runtimeOptions.fencing = false;
+  vm.renderer.offscreenTouching = true;
 
-	function updateCamera() {
-		Scratch.vm.renderer.setStageSize(
-			Scratch.vm.runtime.stageWidth/-2+camera.X, 
-			Scratch.vm.runtime.stageWidth/2+camera.X, 
-			Scratch.vm.runtime.stageHeight/-2+camera.Y, 
-			Scratch.vm.runtime.stageHeight/2+camera.Y
-		)
-		Scratch.vm.renderer._projection[15] = 100/camera.Zoom
-		Scratch.vm.renderer._backgroundColor4f = [
-			parseInt(camera.Background.substring(1,3),16)/255,
-			parseInt(camera.Background.substring(3,5),16)/255,
-			parseInt(camera.Background.substring(5,7),16)/255,
-			1
-		]
-	}
+  function updateCamera() {
+    vm.renderer.setStageSize(
+      vm.runtime.stageWidth/-2+cameraX, 
+      vm.runtime.stageWidth/2+cameraX, 
+      vm.runtime.stageHeight/-2+cameraY, 
+      vm.runtime.stageHeight/2+cameraY
+    );
+    vm.renderer._projection[15] = 100/cameraZoom;
+    /*
+    vm.renderer._backgroundColor4f = [
+      parseInt(cameraBG.substring(1,3),16)/255,
+      parseInt(cameraBG.substring(3,5),16)/255,
+      parseInt(cameraBG.substring(5,7),16)/255,
+      1
+    ]
+    */
+  }
 
-	let oldResize = Scratch.vm.runtime.setStageSize
-	Scratch.vm.runtime.setStageSize = function(width, height) {
-		oldResize.apply(this, [width, height])
-		updateCamera()
-	}
-	
+  // tell resize to update camera as well
+  vm.runtime.on("STAGE_SIZE_CHANGED", _=>updateCamera());
 
-	Scratch.vm.runtime._events.PROJECT_START.push(function(){
-		Scratch.vm.runtime.setStageSize(Scratch.vm.runtime.stageWidth, Scratch.vm.runtime.stageHeight)
-	})
+  function doFix() {
+    vm.runtime.emit('STAGE_SIZE_CHANGED', vm.runtime.stageWidth, vm.runtime.stageHeight);
+  }
 
-	// fix mouse positions
-	let oldSX = Scratch.vm.runtime.ioDevices.mouse.getScratchX
-	let oldSY = Scratch.vm.runtime.ioDevices.mouse.getScratchY
-	
-	Scratch.vm.runtime.ioDevices.mouse.getScratchX = function(...a){
-		return (oldSX.apply(this, a)+camera.X)/camera.Zoom*100
-	}
-	Scratch.vm.runtime.ioDevices.mouse.getScratchY = function(...a){
-		return (oldSY.apply(this, a)+camera.Y)/camera.Zoom*100
-	}
-	
-	class JavascriptEval {
+  // fix mouse positions
+  let oldSX = vm.runtime.ioDevices.mouse.getScratchX;
+  let oldSY = vm.runtime.ioDevices.mouse.getScratchY;
+  
+  vm.runtime.ioDevices.mouse.getScratchX = function(...a){
+    return (oldSX.apply(this, a)+cameraX)/cameraZoom*100;
+  }
+  vm.runtime.ioDevices.mouse.getScratchY = function(...a){
+    return (oldSY.apply(this, a)+cameraY)/cameraZoom*100;
+  }
+  
+  class CameraControls {
 
-		getInfo() {
-			return {
-				color1: "#ff4da7",
-				color2: "#b93778",
+    getInfo() {
+      return {
+        color1: '#ff4da7',
+        color2: '#b93778',
+        color3: '#b93778',
 
-				id: 'cameracontrols',
+        id: 'DTcameracontrols',
 
-				name: 'Camera Controls',
+        name: 'Camera Controls',
 
-				blocks: [
-					{
-						opcode: 'setBoth',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'scroll to [x] [y]',
-						arguments: {
-							x: {
-								type: 'number',
-								defaultValue: 0
-							},
-							y: {
-								type: 'number',
-								defaultValue: 0
-							},
-						}
-					},
-					{
-						opcode: 'getX',
-						blockType: Scratch.BlockType.REPORTER,
-						text: 'camera x',
-					},
-					{
-						opcode: 'setX',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'set camera x to [val]',
-						arguments: {
-							val: {
-								type: 'number',
-								defaultValue: 0
-							}
-						}
-					},
-					{
-						opcode: 'changeX',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'change camera x by [val]',
-						arguments: {
-							val: {
-								type: 'number',
-								defaultValue: 10
-							}
-						}
-					},
-					{
-						opcode: 'getY',
-						blockType: Scratch.BlockType.REPORTER,
-						text: 'camera y',
-					},
-					{
-						opcode: 'setY',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'set camera y to [val]',
-						arguments: {
-							val: {
-								type: 'number',
-								defaultValue: 0
-							}
-						}
-					},
-					{
-						opcode: 'changeY',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'change camera y by [val]',
-						arguments: {
-							val: {
-								type: 'number',
-								defaultValue: 10
-							}
-						}
-					},
-					{
-						opcode: 'getZoom',
-						blockType: Scratch.BlockType.REPORTER,
-						text: 'camera zoom',
-					},
-					{
-						opcode: 'setZoom',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'set camera zoom to [val] %',
-						arguments: {
-							val: {
-								type: 'number',
-								defaultValue: 100
-							}
-						}
-					},
-					{
-						opcode: 'changeZoom',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'change camera zoom by [val]',
-						arguments: {
-							val: {
-								type: 'number',
-								defaultValue: 10
-							}
-						}
-					},
-					{
-						opcode: 'setCol',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'set background color to [val]',
-						arguments: {
-							val: {
-								type: 'color'
-							}
-						}
-					},
-				]
-			};
-		}
+        blocks: [
+          {
+            opcode: 'setBoth',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'scroll to [x] [y]',
+            arguments: {
+              x: {
+                type: 'number',
+                defaultValue: 0
+              },
+              y: {
+                type: 'number',
+                defaultValue: 0
+              },
+            }
+          },
+          {
+            opcode: 'getX',
+            blockType: Scratch.BlockType.REPORTER,
+            text: 'camera x',
+          },
+          {
+            opcode: 'setX',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'set camera x to [val]',
+            arguments: {
+              val: {
+                type: 'number',
+                defaultValue: 0
+              }
+            }
+          },
+          {
+            opcode: 'changeX',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'change camera x by [val]',
+            arguments: {
+              val: {
+                type: 'number',
+                defaultValue: 10
+              }
+            }
+          },
+          {
+            opcode: 'getY',
+            blockType: Scratch.BlockType.REPORTER,
+            text: 'camera y',
+          },
+          {
+            opcode: 'setY',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'set camera y to [val]',
+            arguments: {
+              val: {
+                type: 'number',
+                defaultValue: 0
+              }
+            }
+          },
+          {
+            opcode: 'changeY',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'change camera y by [val]',
+            arguments: {
+              val: {
+                type: 'number',
+                defaultValue: 10
+              }
+            }
+          },
+          {
+            opcode: 'getZoom',
+            blockType: Scratch.BlockType.REPORTER,
+            text: 'camera zoom',
+          },
+          {
+            opcode: 'setZoom',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'set camera zoom to [val] %',
+            arguments: {
+              val: {
+                type: 'number',
+                defaultValue: 100
+              }
+            }
+          },
+          {
+            opcode: 'changeZoom',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'change camera zoom by [val]',
+            arguments: {
+              val: {
+                type: 'number',
+                defaultValue: 10
+              }
+            }
+          },
+          /*  REMOVED - touching color still returns white
+          {
+            opcode: 'setCol',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'set background color to [val]',
+            arguments: {
+              val: {
+                type: 'color'
+              }
+            }
+          },
+          */
+        ]
+      }
+    }
 
-		setBoth(ARGS) {
-			camera.X = +ARGS.x
-			camera.Y = +ARGS.y
-			updateCamera()
-		}
-		getX() {
-			return camera.X
-		}
-		setX(ARGS) {
-			camera.X = +ARGS.val
-			updateCamera()
-		}
-		changeX(ARGS) {
-			camera.X += +ARGS.val
-			updateCamera()
-		}
-		getY() {
-			return camera.Y
-		}
-		setY(ARGS) {
-			camera.Y = +ARGS.val
-			updateCamera()
-		}
-		changeY(ARGS) {
-			camera.Y += +ARGS.val
-			updateCamera()
-		}
-		getZoom() {
-			return camera.Zoom
-		}
-		setZoom(ARGS) {
-			camera.Zoom = +ARGS.val
-			updateCamera()
-		}
-		setCol(ARGS) {
-			camera.Background = ARGS.val
-			updateCamera()
-		}
-		changeZoom(ARGS) {
-			camera.Zoom += +ARGS.val
-			updateCamera()
-		}
-	}
+    setBoth(ARGS) {
+      cameraX = +ARGS.x;
+      cameraY = +ARGS.y;
+      doFix();
+    }
+    getX() {
+      return cameraX;
+    }
+    setX(ARGS) {
+      cameraX = +ARGS.val;
+      doFix();
+    }
+    changeX(ARGS) {
+      cameraX += +ARGS.val;
+      doFix();
+    }
+    getY() {
+      return cameraY;
+    }
+    setY(ARGS) {
+      cameraY = +ARGS.val;
+      doFix();
+    }
+    changeY(ARGS) {
+      cameraY += +ARGS.val;
+      doFix();
+    }
+    getZoom() {
+      return cameraZoom;
+    }
+    setZoom(ARGS) {
+      cameraZoom = +ARGS.val;
+      doFix();
+    }
+    setCol(ARGS) {
+      cameraBG = ARGS.val;
+      doFix();
+    }
+    changeZoom(ARGS) {
+      cameraZoom += +ARGS.val;
+      doFix();
+    }
+  }
 
-	updateCamera()
+  Scratch.extensions.register(new CameraControls());
 
-	Scratch.extensions.register(new JavascriptEval());
-
-})(Scratch);
+})(Scratch)
