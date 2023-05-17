@@ -1,53 +1,28 @@
 (function(Scratch) {
 	'use strict';
-	class Broadcast3 {
+	class Broadcast1 {
 		getInfo() {
 			return {
-				id: 'broadcast3example',
-				name: 'Broadcast Example 3',
+				id: 'broadcast1example',
+				name: 'Broadcast Example 1',
 				blocks: [
 					{
 						opcode: 'whenReceived',
 						blockType: Scratch.BlockType.HAT,
-						text: 'when I receive [EVENT_OPTION]',
-						isEdgeActivated: false,
-						shouldRestartExistingThreads: true,
-						arguments: {
-							EVENT_OPTION: {
-								type: Scratch.ArgumentType.STRING,
-								menu: 'EVENT_FIELD'
-							}
-						}
+						text: 'when I receive the event',
+						isEdgeActivated: false
 					},
 					{
 						opcode: 'broadcast',
 						blockType: Scratch.BlockType.COMMAND,
-						text: 'broadcast [EVENT]',
-						arguments: {
-							EVENT: {
-								type: Scratch.ArgumentType.STRING,
-								menu: 'EVENT_FIELD'
-							}
-						}
+						text: 'broadcast the event'
 					}
-				],
-				menus: {
-					EVENT_FIELD: {
-						acceptReporters: false,
-						items: [
-							'Event 1',
-							'Event 2',
-							'Event 3'
-						]
-					}
-				}
+				]
 			};
 		}
-		broadcast({EVENT}, util) {
-			util.startHats('broadcast3example_whenReceived', {
-				EVENT_OPTION: EVENT
-			});
+		broadcast(args, util) {
+			util.startHats('broadcast1example_whenReceived');
 		}
 	}
-	Scratch.extensions.register(new Broadcast3());
+	Scratch.extensions.register(new Broadcast1());
 }(Scratch));
