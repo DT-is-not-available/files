@@ -90,15 +90,15 @@
 		jQuery(document).ready(function ()
 		{			
 			// Create new runtime using the c2canvas
-			cr_createRuntime("c2canvas");
+			window.cr_createRuntime("c2canvas");
 		});
 		
 		// Pause and resume on page becoming visible/invisible
 		function onVisibilityChanged() {
 			if (document.hidden || document.mozHidden || document.webkitHidden || document.msHidden)
-				cr_setSuspended(true);
+				window.cr_setSuspended(true);
 			else
-				cr_setSuspended(false);
+				window.cr_setSuspended(false);
 		};
 		
 		document.addEventListener("visibilitychange", onVisibilityChanged, false);
