@@ -400,10 +400,10 @@ c2.do = function(...args) {
 
 c2.Keyboard = {}
 
-addEventListener("keydown", function(e){
+document.addEventListener("keydown", function(e){
 	c2.Keyboard[e.code] = true
 })
-addEventListener("keyup", function(e){
+document.addEventListener("keyup", function(e){
 	c2.Keyboard[e.code] = false
 })
 

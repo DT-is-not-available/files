@@ -81,7 +81,7 @@ c2.events.LayoutStart.push(function() {
 	c2.vars.Paused = false
 	c2.vars.pausedOption = 0
 	const settings = c2.vars.settings
-	addEventListener("keydown", function(event) {
+	document.addEventListener("keydown", function(event) {
 		if (!c2.layers.World.visible || c2.objects.Player.Inactive) return
 		if (event.code == "Escape" || (event.code == "Space" && c2.vars.pausedOption == 0 && c2.vars.Paused)) {
 			c2.vars.pausedOption = 0
